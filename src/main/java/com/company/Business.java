@@ -88,4 +88,29 @@ public class Business {
     public CRUD getCrudProduct() {
         return crudProduct;
     }
+
+    public void showTables(JTable table) {
+        String text = crudProduct.showTables();
+        String[] separate = text.replace("|", " ").split(" ");
+        DefaultTableModel model = new DefaultTableModel();
+        table.setModel(model);
+        model.addColumn("Tables options");
+        for (int x = 0; x < separate.length; x++) {
+            Vector row = new Vector();
+            row.add(separate[x]);
+            model.addRow(row);
+        }
+    }
+    public void showDatabase(JTable table){
+        String text = crudProduct.showDatabase();
+        String[] separate = text.replace("|"," ").split(" ");;
+        DefaultTableModel model = new DefaultTableModel();
+        table.setModel(model);
+        model.addColumn("Database options");
+        for (int i = 0; i < separate.length; i++) {
+            Vector row = new Vector();
+            row.add(separate[i]);
+            model.addRow(row);
+        }
+    }
 }

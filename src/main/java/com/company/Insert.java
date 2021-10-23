@@ -11,11 +11,12 @@ public class Insert extends JFrame {
     private JLabel[] labels;
     private JTextField[] textFields;
     private JPanel panel = new JPanel(null);
+    private JScrollPane jScrollPane = new JScrollPane(panel);
 
     public Insert (String title, Business business, int type) {
         super(title);
 
-        this.setSize(500, 500);
+        this.setSize(700,1000);
         this.setLayout(null);
         this.setVisible(true);
         this.setContentPane(panel);
@@ -30,6 +31,10 @@ public class Insert extends JFrame {
         boton1.setLocation(350,300);
         boton1.setVisible(true);
         panel.add(boton1);
+        panel.setAutoscrolls(true);
+        jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        jScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        add(jScrollPane, LEFT_ALIGNMENT);
 
         boton1.addActionListener(new ActionListener() {
             @Override
@@ -50,14 +55,14 @@ public class Insert extends JFrame {
     public JLabel[] allLabels(Business business) {
         int numberOfFields = business.getCrudProduct().getColumnName().length;
         JLabel[] Jlabel = new JLabel[numberOfFields];
-        int more = 100;
+        int more = 100;int x = 20;
 
         for (int j = 0; j < Jlabel.length; j++) {
             Jlabel[j] = new JLabel();
             Jlabel[j].setText(business.getCrudProduct().getColumnName()[j]);
             Jlabel[j].setVisible(true);
             Jlabel[j].setSize(80, 50);
-            Jlabel[j].setLocation(0, more);
+            Jlabel[j].setLocation(x, more);
             more += 50;
         }
         for (int j = 0; j < Jlabel.length; j++) {
@@ -70,11 +75,12 @@ public class Insert extends JFrame {
         int numberOfFields = business.getCrudProduct().getColumnName().length;
         JTextField[] tfs = new JTextField[numberOfFields];
         int more = 100;
+        int x = 170;
         for (int j = 0; j < tfs.length; j++) {
             tfs[j] = new JTextField();
             tfs[j].setVisible(true);
             tfs[j].setSize(150, 50);
-            tfs[j].setLocation(150, more);
+            tfs[j].setLocation(x, more);
             more += 50;
         }
         for (int j = 0; j < tfs.length; j++) {

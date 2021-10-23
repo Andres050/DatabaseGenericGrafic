@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class CRUD {
 
@@ -21,12 +22,125 @@ public class CRUD {
     public String password = "militaxx5AGB5";
     public String database = "Productos";
     public String table = "Producto";
+    public String serverAddress = "localhost";
 
     //URL School
     //String url = "jdbc:mysql://localhost:3306/"+database+"?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
     public Connection connection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/"+database+"?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC", login, password);
+        return DriverManager.getConnection("jdbc:mysql://"+serverAddress+":3306/"+database+"?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC", login, password);
+    }
+    public Connection connectionUserPasswordOnly(){
+        Connection conn = null;
+        Properties connectionProps = new Properties();
+        connectionProps.put("user", login);
+        connectionProps.put("password", password);
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            conn = DriverManager.getConnection(
+                    "jdbc:" + "mysql" + "://" +
+                            serverAddress +
+                            ":" + "3306" + "/"+
+                            "?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC",
+                    connectionProps);
+        } catch (SQLException ex) {
+            // handle any errors
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            // handle any errors
+            ex.printStackTrace();
+        }
+        return conn;
+    }
+
+    public String showTables(){
+        Connection conn;
+        ArrayList<String> table = new ArrayList<>();
+        try {
+            conn = connection();
+            if (conn != null) {
+                System.out.println("Connexion a base de dates ... Ok");
+                Statement sta = conn.createStatement();
+                sta.executeQuery("USE "+database);
+                ResultSet rs = sta.executeQuery("Show tables");
+                while(rs.next()) {
+                    table.add(rs.getString(1));
+                }
+                conn.close();
+                String text = "";
+                for (int i = 0; i < table.size(); i++) {
+                    text += table.get(i)+"|";
+                }
+                return text;
+            }
+        } catch(SQLException ex) {
+            return ex.getMessage();
+        }
+        return "HAVE_NOTHING_IN_THERE";
+    }
+
+    public String tableExist(){
+        Connection conn;
+        try {
+            conn = connection();
+            if (conn != null) {
+                System.out.println("Connexion a base de dates ... Ok");
+                Statement sta = conn.createStatement();
+                sta.executeQuery("SELECT * FROM " + table + ";");
+                conn.close();
+                return "Ok";
+            }
+        } catch(SQLException ex) {
+            return ex.getMessage();
+        }
+        return "HAVE_NOTHING_IN_THERE";
+    }
+
+    public String databaseExist(){
+        Connection conn;
+        try {
+            conn = connection();
+            if (conn != null) {
+                System.out.println("Connexion a base de dates ... Ok");
+                Statement sta = conn.createStatement();
+                sta.executeQuery("USE "+database);
+                conn.close();
+                return "Ok";
+            }
+        } catch (SQLException ex) {
+            return ex.getMessage();
+        }
+        return "HAVE_NOTHING_IN_THERE";
+    }
+
+    public String showDatabase(){
+        Connection conn;
+        ArrayList<String> table = new ArrayList<>();
+        try {
+            conn = connectionUserPasswordOnly();
+            if (conn != null) {
+                System.out.println("Connexion a base de dates ... Ok");
+                Statement sta = conn.createStatement();
+                ResultSet resultSet = sta.executeQuery("SHOW DATABASES;");
+                if (sta.execute("SHOW DATABASES;")) {
+                    resultSet = sta.getResultSet();
+                }
+                while(resultSet.next()) {
+                    System.out.println(resultSet.getString("database"));
+                    table.add(resultSet.getString("Database"));
+                }
+                conn.close();
+                resultSet.close();
+                String text = "";
+                for (int i = 0; i < table.size(); i++) {
+                    text += table.get(i)+"|";
+                }
+                return text;
+            }
+        } catch(SQLException ex) {
+            return ex.getMessage();
+        }
+        return "HAVE_NOTHING_IN_THERE";
     }
 
     public void insert(String[] object) {

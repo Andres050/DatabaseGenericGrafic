@@ -4,8 +4,12 @@ import com.company.AccesoDatos.CRUD;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Objects;
 
 
 public class Grafic extends JFrame{
@@ -29,6 +33,11 @@ public class Grafic extends JFrame{
     private JLabel TAbleNameTop;
     private JTextField primaryREAD;
     public JTextField primaryUPDATE;
+    private JButton ChangeConnectionButton;
+    private JLabel ConnectionLabel;
+    private JTextField serverAddressField;
+    private JButton SHOWDATABASESButton;
+    private JButton SHOWTABLESButton;
 
     private CRUD crud = new CRUD();
     private final Business business = new Business(crud);
@@ -42,8 +51,11 @@ public class Grafic extends JFrame{
         this.setSize(1000, 400);
         this.pack();
 
+
+        ConnectionLabel.setText("CONNECTION: "+crud.login+" , "+crud.password+" , "+crud.serverAddress);
         DAtaBaseNameTop.setText("DATABASE: "+ crud.database);
         tableNameTop.setText("Table: "+ crud.table);
+        TAbleNameTop.setText("TABLE: "+crud.table);
         table1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table1.setEnabled(true);
         table1.getTableHeader().setReorderingAllowed(false);
@@ -67,24 +79,38 @@ public class Grafic extends JFrame{
         READwithPrimaryKey.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                business.search(primaryREAD, newModel());
-                JOptionPane.showMessageDialog(null, "Operation finished!!!");
+                String prove = primaryREAD.getText();
+                if (prove.equals(" ") || prove.equals("") ||prove == null) {
+                    JOptionPane.showMessageDialog(null, "You dont write a ID on primaryKey READ!!");
+                } else {
+                    business.search(primaryREAD, newModel());
+                    JOptionPane.showMessageDialog(null, "Operation finished!!!");
+                }
             }
         });
         UPDATEButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                int type = 1;
-                Insert insert = new Insert("UPDATE",business,type);
-                JOptionPane.showMessageDialog(null, "Operation finished!!!");
+                String prove = primaryUPDATE.getText();
+                if (prove.equals(" ") || prove.equals("") ||prove == null) {
+                    JOptionPane.showMessageDialog(null, "You dont write a ID on primaryKey UPDATE!!");
+                } else {
+                    int type = 1;
+                    Insert insert = new Insert("UPDATE", business, type);
+                    JOptionPane.showMessageDialog(null, "Operation finished!!!");
+                }
             }
         });
         //NO TERMINADO DESDE AQUI
         DELETEwithPrimaryKey.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                business.deleteID(primaryDELETE);
-                JOptionPane.showMessageDialog(null, "Operation finished!!!");
+                String prove = primaryDELETE.getText();
+                if (prove.equals(" ") || prove.equals("") ||prove == null) {
+                    JOptionPane.showMessageDialog(null, "You dont write a ID on primaryKey DELETE!!");
+                } else {
+                    business.deleteID(primaryDELETE);
+                    JOptionPane.showMessageDialog(null, "Operation finished!!!");                }
             }
         });
         DELETEALLTABLEButton.addActionListener(new ActionListener() {
@@ -92,7 +118,7 @@ public class Grafic extends JFrame{
             public void actionPerformed(ActionEvent actionEvent) {
                 int confirmado = JOptionPane.showConfirmDialog(
                         null,
-                        "¿Lo confirmas?");
+                        "¿Confirmas que lo quieres eliminar?");
                 if (JOptionPane.OK_OPTION == confirmado) {
                     business.restartCataleg();
                 }
@@ -102,17 +128,113 @@ public class Grafic extends JFrame{
         GETDATABASEButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crud.database = databaseField.getText();
-                System.out.println(databaseField.getText());
+                String prove = databaseField.getText();
+                if (prove.equals("") || prove.equals(" ") || prove == null) {
+                    JOptionPane.showMessageDialog(null, "You dont write a Database!!");
+                } else {
+                    String saveDatabase = crud.database;
+                    crud.database = databaseField.getText();
+                    String work = crud.databaseExist();
+                    if (work.equals("Ok")) {
+                        JOptionPane.showMessageDialog(null, "Connection its doing fine!!!");
+                        String text = crud.showTables();
+                        String[] separate = text.replace("|"," ").split(" ");
+                        crud.table = separate[0];
+                        TAbleNameTop.setText("TABLE: "+crud.table);
+                        tableNameTop.setText("Table: "+crud.table);
+                    } else {
+                        JOptionPane.showMessageDialog(null, work);
+                        crud.database = saveDatabase;
+                    }
+                }
                 DAtaBaseNameTop.setText("DATABASE: "+ crud.database);
             }
         });
         GETTABLEButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crud.table = textFieldTable.getText();
-                System.out.println(textFieldTable.getText());
+                String prove = textFieldTable.getText();
+                if (prove.equals("") || prove.equals(" ") || prove == null) {
+                    JOptionPane.showMessageDialog(null, "You dont write a table!!");
+                } else {
+                    String saveTable = crud.table;
+                    crud.table = textFieldTable.getText();
+                    String work = crud.tableExist();
+                    if (work.equals("Ok")) {
+                        JOptionPane.showMessageDialog(null, "Connection its doing fine!!");
+                    } else {
+                        JOptionPane.showMessageDialog(null, work);
+                        crud.table = saveTable;
+                    }
+                }
                 tableNameTop.setText("Table: "+ crud.table);
+                TAbleNameTop.setText("TABLE: "+crud.table);
+            }
+        });
+        ChangeConnectionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String loginSave = crud.login;
+                String passwordSave = crud.password;
+                String addressSave = crud.serverAddress;
+                String databaseSave = crud.database;
+                String password = ""; String UserName = ""; String address = ""; String database = "";
+                password = textFieldPassword.getText();
+                UserName = textFieldUserName.getText();
+                address = serverAddressField.getText();
+                database = databaseField.getText();
+                if ((password != null || !password.equals("")) && (!UserName.equals("") && UserName != null) && (address!=null || !address.equals("") || !address.equals(" "))) {
+                    JOptionPane.showMessageDialog(null, "You write a complete connection!!");
+                    try {
+                        crud.login = textFieldUserName.getText();
+                        crud.password = textFieldPassword.getText();
+                        crud.serverAddress = serverAddressField.getText();
+                        if (database.equals("") ||database.equals(" ") ||database == null) {
+                            JOptionPane.showMessageDialog(null, "DataBase not selected!!!");
+                            crud.database = crud.showDatabase().replace("|"," ").split(" ")[0];
+                            JOptionPane.showMessageDialog(null, "DATABASE Selected: "+crud.database);
+                            DAtaBaseNameTop.setText("DATABASE: "+crud.database);
+                            crud.table = crud.showTables().replace("|"," ").split(" ")[0];
+                            TAbleNameTop.setText("TABLE: "+crud.table);
+                            tableNameTop.setText("Table: "+crud.table);
+                            JOptionPane.showMessageDialog(null, "TABLE Selected: "+crud.table);
+                        } else {
+                            crud.database = databaseField.getText();
+                            Connection connection = crud.connection();
+                            connection.close();
+                            JOptionPane.showMessageDialog(null, "Connection its doing fine!!");
+                            ConnectionLabel.setText("CONNECTION: " + textFieldUserName.getText() + "," + textFieldPassword.getText() + " , " + serverAddressField.getText());
+                            DAtaBaseNameTop.setText("DATABASE: "+databaseField.getText());
+                            JOptionPane.showMessageDialog(null, "Table changed!!");
+                            crud.table = crud.showTables().replace("|", " ").split(" ")[0];
+                            TAbleNameTop.setText("TABLE: "+crud.table);
+                            tableNameTop.setText("Table: "+crud.table);
+                        }
+                    } catch (SQLException exception) {
+                        JOptionPane.showMessageDialog(null, exception.getMessage());
+                        crud.login = loginSave;
+                        crud.password = passwordSave;
+                        crud.serverAddress = addressSave;
+                        ConnectionLabel.setText("CONNECTION: "+loginSave+","+passwordSave+","+addressSave);
+                        DAtaBaseNameTop.setText("DATABASE: "+databaseSave);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "You dont write a complete connection!!");
+                }
+            }
+        });
+        SHOWDATABASESButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                business.showDatabase(table1);
+                JOptionPane.showMessageDialog(null, "Operation finished!!!");
+            }
+        });
+        SHOWTABLESButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                business.showTables(table1);
+                JOptionPane.showMessageDialog(null, "Operation finished!!!");
             }
         });
     }
@@ -127,24 +249,4 @@ public class Grafic extends JFrame{
         //model.addRow(new Object[]{"ID Product", "Name Product", "Description", "Price"});
         return model;
     }
-
-    /*public Product createProductGUI(){
-        String name = "", descript = "";
-        double price = 0;
-        if (Product.isString(textField1.getText(), 30)) {
-            name = textField1.getText();
-        }
-        if (Product.isString(textField2.getText(), 50)) {
-            descript = textField2.getText();
-        }
-        try {
-            Double.parseDouble(textField3.getText());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Price is not a number!!");
-            return new Product();
-        }
-        price = Product.isDouble(textField3.getText());
-
-        return new Product(name,descript,price);
-    }*/
 }
