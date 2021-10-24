@@ -163,7 +163,7 @@ public class CRUD {
                     conn.close();
             }
         } catch(SQLException ex) {
-            System.out.println(ex);
+           JOptionPane.showMessageDialog(null,ex.getMessage());
         }
     }
 

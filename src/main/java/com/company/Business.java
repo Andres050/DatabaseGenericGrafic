@@ -14,11 +14,29 @@ public class Business {
     }
 
     public void add(JTextField[] jTextField){
-        String[] object = new String[jTextField.length];
-        for (int i = 0; i < jTextField.length; i++) {
-            object[i] = jTextField[i].getText();
+        String primaryKey = jTextField[0].getText();
+        if (!primaryKey.equals("")) {
+            String[] object = new String[jTextField.length];
+            for (int i = 0; i < jTextField.length; i++) {
+                object[i] = jTextField[i].getText();
+            }
+            boolean isIn = false;
+            String[] all = crudProduct.readAll();
+            for (int i = 0; i < all.length; i++) {
+                String[] split = all[i].replace(",", "|").split("|");
+                if (object[0].equals(split[0])) {
+                    isIn = true;
+                }
+            }
+            if (!isIn) {
+                crudProduct.insert(object);
+            } else {
+                JOptionPane.showMessageDialog(null, "The primaryKey selected to add exist!!!");
+            }
+        } else {
+            jTextField[0].getText();
+            JOptionPane.showMessageDialog(null,"You dont selected the primaryKey!!!");
         }
-        crudProduct.insert(object);
     }
 
     public void list(DefaultTableModel model){
