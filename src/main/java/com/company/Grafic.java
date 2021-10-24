@@ -95,12 +95,17 @@ public class Grafic extends JFrame{
                 if (prove.equals(" ") || prove.equals("") ||prove == null) {
                     JOptionPane.showMessageDialog(null, "You dont write a ID on primaryKey UPDATE!!");
                 } else {
-                    int type = 1;
-                    Insert insert = new Insert("UPDATE", business, type);
-                    JOptionPane.showMessageDialog(null, "Operation finished!!!");
+                    if (isThere(prove)) {
+                        Insert insert = new Insert("UPDATE", business, 1);
+                        JOptionPane.showMessageDialog(null, "Operation finished!!!");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "ID selected dont find!!!");
+                    }
                 }
             }
         });
+
+
         //NO TERMINADO DESDE AQUI
         DELETEwithPrimaryKey.addActionListener(new ActionListener() {
             @Override
@@ -237,6 +242,17 @@ public class Grafic extends JFrame{
                 JOptionPane.showMessageDialog(null, "Operation finished!!!");
             }
         });
+    }
+
+    public boolean isThere(String prove) {
+        String[] text = crud.readAll();
+        for (int i = 0; i < text.length; i++) {
+            String[] separete = text[i].replace(",","|").split("|");
+            if (separete[0].equals(prove)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public DefaultTableModel newModel() {
