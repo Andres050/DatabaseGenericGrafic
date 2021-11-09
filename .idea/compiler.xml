@@ -15,7 +15,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="Catàleg de películes" options="--add-exports java.base/jdk.internal.util.jar=ALL-UNNAMED" />
+      <module name="Catàleg de películes" options="" />
     </option>
   </component>
 </project>
